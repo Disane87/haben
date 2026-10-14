@@ -122,6 +122,34 @@ h2 { margin: 0; font-size: 16px; font-weight: 600; }
 .field input, .field select { min-height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface); }
 .field input:focus-visible, .field select:focus-visible, .btn:focus-visible, .nav-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .field-error { color: var(--danger-ink); font-size: 13px; }
+/* Formular in Abschnitten (Kontakt, Firmendaten, Persönliche Angaben) */
+.form-card { gap: 0; padding: 0; }
+.contact-form { max-width: 760px; }
+.form-card-head { display: flex; flex-direction: column; gap: 8px; padding: 20px 24px 0; }
+.form-card-head p { margin: 0; }
+.form-section { display: flex; flex-direction: column; gap: 14px; padding: 20px 24px; border: 0; border-top: 1px solid var(--line); margin: 0; min-width: 0; }
+.form-section:first-child, .form-card-head + .form-section { border-top: 0; }
+.form-section > h2, .form-section > h3, .form-section > legend { float: left; width: 100%; padding: 0; margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.form-section > legend + * { clear: both; }
+.form-row { display: grid; gap: 14px; align-items: start; }
+.form-row.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.form-row.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.form-row.cols-address { grid-template-columns: 120px minmax(0, 1fr) 120px; }
+.form-row.cols-place { grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr); }
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+.field-hint, .field .small { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.4; }
+.field input.mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0.02em; }
+.field input.uppercase { text-transform: uppercase; }
+.form-footer { padding: 16px 24px; border-top: 1px solid var(--line); align-items: center; }
+.form-card > .banner { margin: 0 24px 16px; }
+.form-card-head > .banner { margin: 0; }
+@media (max-width: 640px) {
+  .form-card-head, .form-section, .form-footer { padding-left: 16px; padding-right: 16px; }
+  .form-card > .banner { margin: 0 16px 16px; }
+  .form-row.cols-2, .form-row.cols-3 { grid-template-columns: minmax(0, 1fr); }
+  .form-row.cols-address, .form-row.cols-place { grid-template-columns: 100px minmax(0, 1fr); }
+  .form-row.cols-address > :last-child, .form-row.cols-place > :last-child { grid-column: 1 / -1; }
+}
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .checkbox { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 14px; }
 .checkbox input { width: 18px; height: 18px; flex-shrink: 0; accent-color: var(--accent); }
@@ -199,6 +227,9 @@ a.table-row:hover { background: var(--ground); color: var(--ink); }
 }
 
 /* Rechnungseditor */
+/* Belegansicht so hoch wie das Fenster, abzüglich Seitenkopf; bleibt beim Scrollen des Formulars stehen */
+:root { --viewer-height: calc(100dvh - 140px); }
+.editor-grid > .doc-preview, .editor-grid > .doc-image { position: sticky; top: 24px; }
 .editor-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
 @media (max-width: 1200px) { .editor-grid { grid-template-columns: minmax(0, 1fr); } }
 /* Position: Beschreibung über die volle Breite, darunter die Zahlen */
@@ -225,28 +256,38 @@ a.table-row:hover { background: var(--ground); color: var(--ink); }
 textarea { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--ink); resize: vertical; min-height: 72px; }
 
 /* Papiervorschau */
-.paper { background: #fff; border: 1px solid var(--line); border-radius: 4px; padding: 40px 44px; display: flex; flex-direction: column; gap: 18px; font-size: 12px; color: #1b1b1b; box-shadow: 0 1px 3px rgba(22, 33, 28, 0.08); }
-.paper-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.paper-company { font-weight: 600; font-size: 15px; color: var(--accent); }
-.paper-contact { text-align: right; font-size: 11px; color: var(--muted); line-height: 1.5; }
-.paper-window { display: flex; flex-direction: column; gap: 2px; min-height: 90px; }
-.paper-sender { font-size: 9px; color: var(--muted); text-decoration: underline; margin-bottom: 6px; }
-.paper-title-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
-.paper-title { font-size: 20px; font-weight: 600; }
-.paper-meta { display: grid; grid-template-columns: auto auto; gap: 2px 12px; margin: 0; font-size: 11px; }
-.paper-meta dt { color: var(--muted); }
-.paper-meta dd { margin: 0; text-align: right; font-family: var(--mono); }
-.paper-table { width: 100%; border-collapse: collapse; }
-.paper-table th { text-align: left; font-weight: 500; color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid #1b1b1b; padding: 4px 0; }
-.paper-table td { padding: 6px 0; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
-.paper-table .num, .paper-table th.num { text-align: right; padding-left: 8px; white-space: nowrap; }
+/* Rechnungsvorschau als A4-Blatt; Maße in mm wie templates/rechnung.typ, 1pt = 0,3528 mm */
+.sheet-frame { container-type: inline-size; }
+.sheet { --mm: calc(100cqw / 210); --ink: #16211c; --ink-muted: #5b6b63; --rule: #d5ddd8; --brand: #1f6f5c; position: relative; min-height: calc(297 * var(--mm)); padding: calc(98.46 * var(--mm)) calc(20 * var(--mm)) calc(40 * var(--mm)) calc(25 * var(--mm)); background: #fff; color: var(--ink); font-family: "IBM Plex Sans", system-ui, sans-serif; font-size: calc(9.5 * 0.3528 * var(--mm)); line-height: 1.4; font-variant-numeric: lining-nums tabular-nums; border-radius: 2px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.18); overflow: hidden; }
+.sheet-fold { position: absolute; left: calc(4 * var(--mm)); width: calc(4 * var(--mm)); border-top: 1px solid var(--rule); }
+.sheet-fold.long { width: calc(6 * var(--mm)); }
+.sheet-logo { position: absolute; top: calc(20 * var(--mm)); right: calc(20 * var(--mm)); max-height: calc(18 * var(--mm)); max-width: calc(60 * var(--mm)); object-fit: contain; }
+.sheet-address { position: absolute; left: calc(20 * var(--mm)); top: calc(45 * var(--mm)); width: calc(85 * var(--mm)); height: calc(45 * var(--mm)); line-height: 1.35; }
+.sheet-sender { height: calc(17.7 * var(--mm)); display: flex; align-items: flex-end; padding-bottom: calc(2 * var(--mm)); font-size: calc(7 * 0.3528 * var(--mm)); color: var(--ink-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet-meta { position: absolute; left: calc(125 * var(--mm)); top: calc(50 * var(--mm)); width: calc(75 * var(--mm)); margin: 0; display: grid; grid-template-columns: auto 1fr; gap: calc(2.2 * var(--mm)) calc(4 * var(--mm)); font-size: calc(8.5 * 0.3528 * var(--mm)); line-height: 1.2; }
+.sheet-meta dt { color: var(--ink-muted); }
+.sheet-meta dd { margin: 0; text-align: right; white-space: nowrap; }
+.sheet-muted { color: var(--ink-muted); }
+.sheet-strong { font-weight: 600; }
+.sheet-body { display: flex; flex-direction: column; }
+.sheet-body p { margin: 0 0 calc(2 * var(--mm)); }
+.sheet-title { font-size: calc(16 * 0.3528 * var(--mm)); font-weight: 600; line-height: 1.2; letter-spacing: -0.005em; }
+.sheet-table { width: 100%; border-collapse: collapse; margin-top: calc(5 * var(--mm)); }
+.sheet-table th { text-align: left; font-weight: 500; font-size: calc(8 * 0.3528 * var(--mm)); color: var(--brand); border-bottom: 0.6pt solid var(--brand); padding: calc(2.2 * var(--mm)) calc(1.6 * var(--mm)); white-space: nowrap; }
+.sheet-table td { padding: calc(2.2 * var(--mm)) calc(1.6 * var(--mm)); border-bottom: 0.4pt solid var(--rule); vertical-align: top; }
+.sheet-table .num { text-align: right; white-space: nowrap; }
+.sheet-table .desc { width: 100%; overflow-wrap: anywhere; }
+.sheet-totals { align-self: flex-end; width: calc(80 * var(--mm)); margin: calc(3 * var(--mm)) 0 calc(8 * var(--mm)); display: grid; grid-template-columns: 1fr auto; gap: calc(2.2 * var(--mm)) 0; }
+.sheet-totals dt, .sheet-totals dd { margin: 0; padding: 0 calc(1.6 * var(--mm)); }
+.sheet-totals dt { color: var(--ink-muted); }
+.sheet-totals dd { text-align: right; white-space: nowrap; }
+.sheet-totals .gross { color: var(--ink); font-weight: 600; border-top: 0.6pt solid var(--brand); padding-top: calc(2.2 * var(--mm)); margin-top: 0; }
+.sheet-foot { position: absolute; left: calc(25 * var(--mm)); right: calc(20 * var(--mm)); bottom: calc(14 * var(--mm)); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(6 * var(--mm)); padding-top: calc(3 * var(--mm)); border-top: 0.4pt solid var(--rule); font-size: calc(7 * 0.3528 * var(--mm)); line-height: 1.45; color: var(--ink-muted); overflow-wrap: anywhere; }
 .paper-totals { display: grid; grid-template-columns: auto 120px; gap: 4px 16px; margin: 0 0 0 auto; }
 .paper-totals dt { text-align: right; color: var(--muted); }
 .paper-totals dd { margin: 0; text-align: right; font-family: var(--mono); }
 .paper-totals .strong { color: #1b1b1b; font-weight: 600; border-top: 1px solid #1b1b1b; padding-top: 4px; }
-.paper-small { margin: 0; font-size: 11px; }
-.paper-foot { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-top: 1px solid var(--line); padding-top: 10px; font-size: 9px; color: var(--muted); line-height: 1.5; }
-.pdf-frame { width: 100%; height: 860px; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
+.pdf-frame { width: 100%; height: var(--viewer-height); min-height: 520px; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
 .facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 16px; margin: 0; }
 .facts dt { color: var(--muted); font-size: 13px; }
 .facts dd { margin: 0; text-align: right; }
@@ -281,8 +322,8 @@ textarea { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid
   .document-cols > :nth-child(5) { grid-column: 2; justify-self: end; }
   .table-row.head.document-cols > :nth-child(5) { display: none; }
 }
-.doc-preview { width: 100%; height: 820px; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
-.doc-image { width: 100%; max-height: 820px; object-fit: contain; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
+.doc-preview { width: 100%; height: var(--viewer-height); min-height: 520px; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
+.doc-image { width: 100%; max-height: var(--viewer-height); object-fit: contain; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
 .amount-row { display: grid; grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr) 40px; gap: 8px; align-items: end; }
 .amount-row input, .amount-row select { width: 100%; min-width: 0; }
 .page-head .actions { align-items: center; }
@@ -381,7 +422,12 @@ fieldset.card > legend + * { clear: both; }
 .subhead { font-size: 14px; font-weight: 600; padding: 0; margin: 8px 0 8px; color: var(--ink); }
 
 /* Unternavigation unter dem Seitentitel; Aktionen bleiben im Seitenkopf */
-.subnav { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 16px; }
+/* Reiter unter dem Seitenkopf, z. B. Rechnungen: Alle, Wiederkehrend, Mahnwesen */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-top: -8px; overflow-x: auto; scrollbar-width: none; }
+.tab { display: inline-flex; align-items: center; min-height: 42px; padding: 0 14px; margin-bottom: -1px; border-bottom: 2px solid transparent; color: var(--muted); font-size: 14px; font-weight: 500; text-decoration: none; white-space: nowrap; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 4px; }
 
 /* Dateiauswahl: der Knopf sieht aus wie .btn, Text daneben senkrecht mittig */
 .field input[type="file"] { display: flex; align-items: center; padding: 6px; min-height: 44px; font-size: 13px; color: var(--muted); }
