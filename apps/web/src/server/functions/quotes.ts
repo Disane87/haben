@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { editorContext } from "../company.ts";
-import { mailsForQuote, quotesSentByMail } from "../invoice-mail.ts";
+import { editorContext } from "../modules/stammdaten/index.ts";
+import { mailsForQuote, quotesSentByMail } from "../modules/rechnungen/index.ts";
 import { authMiddleware } from "../middleware.ts";
 import {
   copyQuote,
@@ -17,7 +17,7 @@ import {
   quoteToInvoice,
   setQuoteDecision,
   updateQuoteDraft,
-} from "../quotes.ts";
+} from "../modules/rechnungen/index.ts";
 import { today } from "../today.ts";
 import { UserError } from "../errors.ts";
 

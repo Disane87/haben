@@ -1,8 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { companyIssues, companySchema, loadCompany } from "../company.ts";
+import { companyIssues, companySchema, loadCompany } from "../modules/stammdaten/index.ts";
 import { authMiddleware } from "../middleware.ts";
-import { saveCompany as saveCompanySettings, settingsLocks } from "../settings-guard.ts";
-import { saveTaxpayer, taxpayerSchema } from "../taxpayer.ts";
+import { saveCompany as saveCompanySettings, settingsLocks } from "../modules/stammdaten/index.ts";
+import { saveTaxpayer, taxpayerSchema } from "../modules/stammdaten/index.ts";
 import { today } from "../today.ts";
 
 export const getCompany = createServerFn({ method: "GET" })
