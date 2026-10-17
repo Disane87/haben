@@ -15,7 +15,7 @@ import { loadCompany } from "./company.ts";
 import { withActor } from "./db/actor.ts";
 import { db, schema } from "./db/index.ts";
 import { FinanzamtError } from "./finanzamt.ts";
-import { prepareElsterAbruf } from "./vast.ts";
+import { prepareAbruf, protocolSubmission, underSendLock } from "./elster-gateway.ts";
 
 /**
  * Berechtigung, die Belege des Ehegatten (Person B) abzurufen. Ablauf bei ELSTER:
@@ -59,8 +59,12 @@ async function ehegatte() {
   return { b, datenlieferant, mail: company.email };
 }
 
-/** Sendet einen Schritt und protokolliert ihn; fachliche Fehler im Nutzdatenblock zählen als Fehler */
-async function sendBrm(
+/**
+ * Sendet einen Schritt und protokolliert ihn; fachliche Fehler im Nutzdatenblock zählen als Fehler. Echte Anträge laufen
+ * unter der Sendesperre des ELSTER-Gateways (nacheinander statt gleichzeitig), das Protokoll wie bei allen Übermittlungen
+ * abgesichert. Ins Protokoll und ins Server-Log kommt das XML ohne Freischaltcode.
+ */
+function sendBrm(
   actor: string,
   client: ElsterClient,
   options: BrmOptions,
@@ -70,7 +74,20 @@ async function sendBrm(
   idnr: string | null,
   datenlieferant: string,
 ) {
-  const { test, herstellerId, pfx, pin } = await prepareElsterAbruf(client, options);
+  return underSendLock(`haben.berechtigung.${art}.${idnr ?? ""}`, options.kind, () => sendBrmLocked(actor, client, options, art, build, extract, idnr, datenlieferant));
+}
+
+async function sendBrmLocked(
+  actor: string,
+  client: ElsterClient,
+  options: BrmOptions,
+  art: Art,
+  build: (input: { datenlieferant: string; herstellerId: string; test: boolean }) => string,
+  extract: (result: ElsterResult) => Partial<typeof schema.brmRequests.$inferInsert>,
+  idnr: string | null,
+  datenlieferant: string,
+) {
+  const { test, herstellerId, pfx, pin } = await prepareAbruf(client, options);
   let xml: string;
   try {
     xml = build({ datenlieferant, herstellerId, test });
@@ -81,20 +98,23 @@ async function sendBrm(
   const rueckgabe = result.ok ? parseBrmRueckgabe(result.serverResponseXml) : undefined;
   const ok = result.ok && (rueckgabe?.code ?? 0) === 0;
   const message = result.ok && !ok ? `${rueckgabe!.text} (${rueckgabe!.code})` : result.message;
-  await withActor(actor, (tx) =>
-    tx.insert(schema.brmRequests).values({
-      art,
-      dateninhaberIdnr: idnr,
-      test,
-      ok,
-      code: ok ? 0 : (rueckgabe?.code ?? result.code),
-      message,
-      // Der Freischaltcode gilt nur einmal und bleibt aus Datenbank und Audit-Log heraus
-      requestXml: xml.replace(/<Freischaltcode>[^<]*<\/Freischaltcode>/, "<Freischaltcode>XXXX-XXXX-XXXX</Freischaltcode>"),
-      responseXml: result.responseXml,
-      serverResponseXml: result.serverResponseXml,
-      ...(ok ? extract(result) : {}),
-    }),
+  // Der Freischaltcode gilt nur einmal und bleibt aus Datenbank, Audit-Log und Server-Log heraus
+  const protokollXml = xml.replace(/<Freischaltcode>[^<]*<\/Freischaltcode>/, "<Freischaltcode>XXXX-XXXX-XXXX</Freischaltcode>");
+  await protocolSubmission(options.kind, result, protokollXml, () =>
+    withActor(actor, (tx) =>
+      tx.insert(schema.brmRequests).values({
+        art,
+        dateninhaberIdnr: idnr,
+        test,
+        ok,
+        code: ok ? 0 : (rueckgabe?.code ?? result.code),
+        message,
+        requestXml: protokollXml,
+        responseXml: result.responseXml,
+        serverResponseXml: result.serverResponseXml,
+        ...(ok ? extract(result) : {}),
+      }),
+    ),
   );
   return { ok, message, test };
 }
